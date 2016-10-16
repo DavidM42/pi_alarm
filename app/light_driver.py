@@ -1,57 +1,41 @@
 from os import sys, path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+import os
+import time
+import wifileds
 
 from app import app
-try:
-    from RPi import GPIO
-except:
-    print "Failed to import GPIO driver! Is this running on a Raspberry Pi?"
 
 class LightDriver(object):
-    """
-    Class for controlling the GPIO Pins and toggling the light on and off
-    If you don't specify which pin to control in the constructor, the PIN
-    specified in the config file is used.
-    """
 
     def __init__(self, pin=None):
-        if not pin:
-            self.pin = app.config['PIN']
+        print ""
 
-    def get_pin(self):
-        return self.pin
+    def init_on(self):
+        print "Turning light on:"
+        led_connection = wifileds.limitlessled.connect('192.168.178.101', 8899)
+        led_connection.rgbw.set_brightness(2)
+        led_connection.rgbw.set_color('orange')
+        i = 2
 
-    def set_pin(self, pin):
-        try:
-            self.pin = pin
-            return True
-        except Exception as exc:
-            print "Failed to set pin: %s" % exc
-            return False
+    def repeat_on(self,i):
+            led_connection = wifileds.limitlessled.connect('192.168.178.101', 8899)
+            led_connection.rgbw.set_brightness(i)
+            if i <= 16:
+                if i == 17:
+                    led_connection.rgbw.set_color('yellow_orange',1)
+                time.sleep(8.6) # 2 minutes to this mode
+            else:
+                time.sleep(6) # other 11 steps in 1 min
+            print "runnning "
 
-    def on(self):
-        print "Turning light on"
-        self._control_signal(self.pin, True)
+    def laterMode(self):
+        print "Making white and later off"
+        led_connection = wifileds.limitlessled.connect('192.168.178.101', 8899)
+        led_connection.rgbw.white(1)
+        led_connection.rgbw.set_color('orange',2)
+        led_connection.rgbw.set_brightness(19,2)
+        led_connection.rgbw.set_brightness(23,1)
 
-    def off(self):
-        print "Turning light off"
-        self._control_signal(self.pin, False)
-
-    def _control_signal(self, pin, signal):
-        """
-        Controls the signal going to the specified pin. Accepts two arguments:
-
-        + pin: The number of the GPIO pin to receive the signal
-        + signal: Boolean (True or False) indicating whether there should be
-                  a current or not going to the specified pin.
-        """
-        try:
-            GPIO.setmode(GPIO.BOARD)
-            GPIO.setup(pin, GPIO.OUT)
-            GPIO.output(pin, signal)
-
-            return signal
-
-        except Exception as exc:
-            print "Failed to control GPIO Pins: %s" % exc
-            return not signal
+        time.sleep(40*60)
+        led_connection.rgbw.all_off()
