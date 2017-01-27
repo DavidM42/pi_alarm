@@ -1,4 +1,4 @@
-# Raspberry Pi Alarm Clock
+# Raspbaerry Pi Alarm Clock
 This project takes a Raspberry Pi and, web-enabling it, turns it into an alarm
 clock. The Pi is attached to a PowerSwitch Tail and controls a light in place
 of an audio-based alarm to wake us up.
